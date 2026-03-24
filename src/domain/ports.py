@@ -9,7 +9,7 @@ __all__: tuple[str, ...] = (
 from abc import ABC, abstractmethod
 from typing import Optional
 
-from cdn.domain.entities import CacheEntry, OriginResponse
+from domain.entities import CacheEntry, OriginResponse
 
 
 class CacheStore(ABC):
