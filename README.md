@@ -54,7 +54,7 @@
 <table>
   <tr>
     <td align="center" valign="top" width="33%">
-      <video src="https://github.com/user-attachments/assets/PLACEHOLDER_1" autoplay loop muted playsinline width="100%"></video>
+      <video src="https://github.com/user-attachments/assets/6c1ae594-b6db-434d-853a-3f246c7a376e" autoplay loop muted playsinline width="100%"></video>
       <br />
       <strong>Compose Up</strong>
       <br />
@@ -63,7 +63,7 @@
       </sub>
     </td>
     <td align="center" valign="top" width="33%">
-      <video src="https://github.com/user-attachments/assets/PLACEHOLDER_2" autoplay loop muted playsinline width="100%"></video>
+      <video src="https://github.com/user-attachments/assets/49aff245-245e-4bf5-8f06-e91804e00203" autoplay loop muted playsinline width="100%"></video>
       <br />
       <strong>Cache HIT / MISS</strong>
       <br />
@@ -71,19 +71,10 @@
         First request: cache MISS (origin fetch). Second request: cache HIT served from edge in &lt;1ms.
       </sub>
     </td>
-    <td align="center" valign="top" width="33%">
-      <video src="https://github.com/user-attachments/assets/PLACEHOLDER_2_1" autoplay loop muted playsinline width="100%"></video>
-      <br />
-      <strong>Response Time</strong>
-      <br />
-      <sub>
-        MISS vs HIT latency comparison via <code>X-Response-Time</code> header - orders of magnitude difference.
-      </sub>
-    </td>
   </tr>
   <tr>
     <td align="center" valign="top" width="33%">
-      <video src="https://github.com/user-attachments/assets/PLACEHOLDER_3" autoplay loop muted playsinline width="100%"></video>
+      <video src="https://github.com/user-attachments/assets/6edf8530-a811-404d-929e-cdc3f8ba555c" autoplay loop muted playsinline width="100%"></video>
       <br />
       <strong>Geographic Routing</strong>
       <br />
@@ -92,7 +83,7 @@
       </sub>
     </td>
     <td align="center" valign="top" width="33%">
-      <video src="https://github.com/user-attachments/assets/PLACEHOLDER_4" autoplay loop muted playsinline width="100%"></video>
+      <video src="https://github.com/user-attachments/assets/6c6808c8-e5a4-4d60-8541-5d1a955f7119" autoplay loop muted playsinline width="100%"></video>
       <br />
       <strong>Cache Purge</strong>
       <br />
@@ -101,7 +92,7 @@
       </sub>
     </td>
     <td align="center" valign="top" width="33%">
-      <video src="https://github.com/user-attachments/assets/PLACEHOLDER_5" autoplay loop muted playsinline width="100%"></video>
+      <video src="https://github.com/user-attachments/assets/879d7344-840a-42f6-8705-16971aaa6b0a" autoplay loop muted playsinline width="100%"></video>
       <br />
       <strong>Cache Warm</strong>
       <br />
@@ -112,7 +103,7 @@
   </tr>
   <tr>
     <td align="center" valign="top" width="33%">
-      <video src="https://github.com/user-attachments/assets/PLACEHOLDER_6" autoplay loop muted playsinline width="100%"></video>
+      <video src="https://github.com/user-attachments/assets/bda33674-462a-453d-957a-3a99f07a68ba" autoplay loop muted playsinline width="100%"></video>
       <br />
       <strong>Range Requests</strong>
       <br />
@@ -121,7 +112,7 @@
       </sub>
     </td>
     <td align="center" valign="top" width="33%">
-      <video src="https://github.com/user-attachments/assets/PLACEHOLDER_7" autoplay loop muted playsinline width="100%"></video>
+      <video src="https://github.com/user-attachments/assets/a549c124-fe56-444f-b3e9-0f319b45b750" autoplay loop muted playsinline width="100%"></video>
       <br />
       <strong>Signed URL Auth</strong>
       <br />
@@ -130,7 +121,7 @@
       </sub>
     </td>
     <td align="center" valign="top" width="33%">
-      <video src="https://github.com/user-attachments/assets/PLACEHOLDER_8" autoplay loop muted playsinline width="100%"></video>
+      <video src="https://github.com/user-attachments/assets/9730c824-fae2-43ad-b78f-6d75a2492031" autoplay loop muted playsinline width="100%"></video>
       <br />
       <strong>Failover</strong>
       <br />
@@ -141,7 +132,7 @@
   </tr>
   <tr>
     <td align="center" valign="top" width="33%">
-      <video src="https://github.com/user-attachments/assets/PLACEHOLDER_9" autoplay loop muted playsinline width="100%"></video>
+      <video src="https://github.com/user-attachments/assets/43539d48-fcdb-4f4e-a386-9b8508209f16" autoplay loop muted playsinline width="100%"></video>
       <br />
       <strong>Metrics & Health</strong>
       <br />
