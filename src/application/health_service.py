@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import socket
 import time
 from typing import Optional
 
@@ -25,7 +26,7 @@ class HealthService:
         self,
         routing_service: RoutingService,
         check_interval: float = 5.0,
-        check_timeout: float = 1.0,
+        check_timeout: float = 3.0,
         max_failures: int = 3,
     ) -> None:
         self._routing_service = routing_service
@@ -54,39 +55,81 @@ class HealthService:
 
     async def _health_loop(self) -> None:
         """Periodically ping every edge and update routing health."""
-        async with httpx.AsyncClient(timeout=self._check_timeout) as client:
-            while True:
-                edges = self._routing_service.get_all_edges()
-                for edge in edges:
-                    await self._check_edge(client, edge.id, edge.host, edge.port)
-                await asyncio.sleep(self._check_interval)
+        while True:
+            edges = self._routing_service.get_all_edges()
+            for edge in edges:
+                # Run each check with its own timeout so a dead host
+                # cannot block checks for other edges.
+                asyncio.create_task(
+                    self._check_with_timeout(edge.id, edge.host, edge.port)
+                )
+            await asyncio.sleep(self._check_interval)
+
+    async def _check_with_timeout(
+        self, edge_id: str, host: str, port: int
+    ) -> None:
+        """Run a single health check wrapped in a hard timeout."""
+        try:
+            await asyncio.wait_for(
+                self._check_edge(edge_id, host, port),
+                timeout=self._check_timeout,
+            )
+        except asyncio.TimeoutError:
+            logger.warning("Health check timed out for edge %s", edge_id)
+            self._record_failure(edge_id)
 
     async def _check_edge(
         self,
-        client: httpx.AsyncClient,
         edge_id: str,
         host: str,
         port: int,
     ) -> None:
         """Ping a single edge node's /health endpoint."""
+        # Resolve DNS in a thread to avoid poisoning the event loop
+        if not await self._dns_resolvable(host):
+            self._record_failure(edge_id)
+            self._update_timestamp(edge_id)
+            return
+
         url = f"http://{host}:{port}/health"
         try:
-            response = await client.get(url)
-            if response.status_code == 200:
-                self._failure_counts[edge_id] = 0
-                self._routing_service.mark_healthy(edge_id)
-                logger.debug("Edge %s healthy", edge_id)
-            else:
-                self._record_failure(edge_id)
+            async with httpx.AsyncClient(timeout=self._check_timeout) as client:
+                response = await client.get(url)
+                if response.status_code == 200:
+                    self._failure_counts[edge_id] = 0
+                    self._routing_service.mark_healthy(edge_id)
+                    logger.debug("Edge %s healthy", edge_id)
+                else:
+                    self._record_failure(edge_id)
         except (httpx.RequestError, Exception) as exc:
-            logger.warning("Health check failed for edge %s: %s", edge_id, exc)
+            logger.warning(
+                "Health check failed for edge %s: %s: %s",
+                edge_id, type(exc).__name__, exc,
+            )
             self._record_failure(edge_id)
 
-        # Update last_health_check timestamp on the edge entity
+        self._update_timestamp(edge_id)
+
+    def _update_timestamp(self, edge_id: str) -> None:
         for edge in self._routing_service.get_all_edges():
             if edge.id == edge_id:
                 edge.last_health_check = time.time()
                 break
+
+    @staticmethod
+    async def _dns_resolvable(host: str) -> bool:
+        """Check if hostname resolves via thread pool (non-blocking)."""
+        loop = asyncio.get_running_loop()
+        try:
+            await asyncio.wait_for(
+                loop.run_in_executor(
+                    None, socket.getaddrinfo, host, None
+                ),
+                timeout=1.0,
+            )
+            return True
+        except (socket.gaierror, asyncio.TimeoutError, OSError):
+            return False
 
     def _record_failure(self, edge_id: str) -> None:
         """Increment the failure counter and mark unhealthy if threshold reached."""

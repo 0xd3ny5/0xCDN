@@ -1,0 +1,157 @@
+services:
+  origin:
+    build: .
+    container_name: cdn-origin
+    environment:
+      CDN_ROLE: origin
+      CDN_HOST: "0.0.0.0"
+      CDN_PORT: "8000"
+      CDN_ASSETS_DIR: /app/assets
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./assets:/app/assets:ro
+    networks:
+      - cdn-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 15s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+
+  edge-eu:
+    build: .
+    container_name: cdn-edge-eu
+    environment:
+      CDN_ROLE: edge
+      CDN_HOST: "0.0.0.0"
+      CDN_PORT: "8001"
+      CDN_EDGE_ID: edge-eu
+      CDN_EDGE_REGION: eu
+      CDN_ORIGIN_URL: http://origin:8000
+    ports:
+      - "8001:8001"
+    depends_on:
+      origin:
+        condition: service_healthy
+    networks:
+      - cdn-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')"]
+      interval: 15s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+
+  edge-us:
+    build: .
+    container_name: cdn-edge-us
+    environment:
+      CDN_ROLE: edge
+      CDN_HOST: "0.0.0.0"
+      CDN_PORT: "8002"
+      CDN_EDGE_ID: edge-us
+      CDN_EDGE_REGION: us
+      CDN_ORIGIN_URL: http://origin:8000
+    ports:
+      - "8002:8002"
+    depends_on:
+      origin:
+        condition: service_healthy
+    networks:
+      - cdn-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8002/health')"]
+      interval: 15s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+
+  edge-asia:
+    build: .
+    container_name: cdn-edge-asia
+    environment:
+      CDN_ROLE: edge
+      CDN_HOST: "0.0.0.0"
+      CDN_PORT: "8003"
+      CDN_EDGE_ID: edge-asia
+      CDN_EDGE_REGION: asia
+      CDN_ORIGIN_URL: http://origin:8000
+    ports:
+      - "8003:8003"
+    depends_on:
+      origin:
+        condition: service_healthy
+    networks:
+      - cdn-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8003/health')"]
+      interval: 15s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+
+  router:
+    build: .
+    container_name: cdn-router
+    environment:
+      CDN_ROLE: router
+      CDN_HOST: "0.0.0.0"
+      CDN_PORT: "8080"
+      CDN_ROUTER_EDGES: "edge-eu:edge-eu:8001:eu,edge-us:edge-us:8002:us,edge-asia:edge-asia:8003:asia"
+      CDN_HEALTH_CHECK_INTERVAL: "5"
+      CDN_HEALTH_CHECK_TIMEOUT: "3"
+    ports:
+      - "8080:8080"
+    depends_on:
+      edge-eu:
+        condition: service_healthy
+      edge-us:
+        condition: service_healthy
+      edge-asia:
+        condition: service_healthy
+    networks:
+      - cdn-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/health')"]
+      interval: 15s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+
+  management:
+    build: .
+    container_name: cdn-management
+    environment:
+      CDN_ROLE: management
+      CDN_HOST: "0.0.0.0"
+      CDN_PORT: "9000"
+      CDN_MGMT_EDGE_URLS: "http://edge-eu:8001,http://edge-us:8002,http://edge-asia:8003"
+    ports:
+      - "9000:9000"
+    depends_on:
+      edge-eu:
+        condition: service_healthy
+      edge-us:
+        condition: service_healthy
+      edge-asia:
+        condition: service_healthy
+    networks:
+      - cdn-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:9000/health')"]
+      interval: 15s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+
+networks:
+  cdn-net:
+    driver: bridge

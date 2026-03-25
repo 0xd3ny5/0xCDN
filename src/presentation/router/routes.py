@@ -143,7 +143,7 @@ async def _proxy_to_edge(
         for i in range(max_attempts):
             edge = ordered_edges[i]
             selected_edge = edge
-            edge_url = f"http://{edge.host}:{edge.port}/{path.lstrip('/')}"
+            edge_url = f"http://{edge.host}:{edge.port}/{request.url.path.lstrip('/')}"
             try:
                 response = await client.get(
                     edge_url,
